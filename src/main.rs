@@ -30,13 +30,14 @@ async fn main() {
             } else {
                 color = Color {r: 1.0, g: 1.0, b:1.0, a:3.0};
             }
-            draw_circle(particle.position.x, screen_height() - particle.position.y, PARTICLE_SIZE, color);
+            let particle_screen_pos = to_screen_pos(particle.position.x, particle.position.y);
+            draw_circle(particle_screen_pos.0, particle_screen_pos.1, PARTICLE_SIZE, color);
             if ((particle.force.x.powi(2) + particle.force.y.powi(2)).powf(0.5) == 0.0) {
                 //avoid dividing by zero 
                 continue;
             }
-            let line_x_dir:f32 = 10.0 * particle.force.x / ((particle.force.x.powi(2) + particle.force.y.powi(2)).powf(0.5));
-            let line_y_dir:f32 = 10.0 * particle.force.y / ((particle.force.x.powi(2) + particle.force.y.powi(2)).powf(0.5));
+            let line_x_dir:f32 = 3.0 * particle.force.x / ((particle.force.x.powi(2) + particle.force.y.powi(2)).powf(0.5));
+            let line_y_dir:f32 = 3.0 * particle.force.y / ((particle.force.x.powi(2) + particle.force.y.powi(2)).powf(0.5));
             let start_pos: (f32, f32) = to_screen_pos(particle.position.x, particle.position.y);
             let end_pos: (f32, f32) = to_screen_pos(particle.position.x + line_x_dir, particle.position.y + line_y_dir);
 
@@ -46,17 +47,24 @@ async fn main() {
                 total_density += particle.density;
             }
         }
-        draw_line(X_RIGHT_BOUNDARY, screen_height() - Y_BOTTOM_BOUNDARY, X_RIGHT_BOUNDARY, screen_height() - Y_TOP_BOUNDARY, 1.0, RED);
-        draw_line(X_LEFT_BOUNDARY, screen_height() - Y_BOTTOM_BOUNDARY, X_LEFT_BOUNDARY, screen_height() - Y_TOP_BOUNDARY, 1.0, RED);
-        draw_line(X_RIGHT_BOUNDARY, screen_height() - Y_BOTTOM_BOUNDARY, X_LEFT_BOUNDARY, screen_height() - Y_BOTTOM_BOUNDARY, 1.0, RED);
 
-        //draw_circle_lines(mouse_position().0, mouse_position().1, SMOOTHING_RADIUS, 2.0, PURPLE);
+        //draw border lines
+        let bottom_right_screen_pos = to_screen_pos(X_RIGHT_BOUNDARY, Y_BOTTOM_BOUNDARY);
+        let bottom_left_screen_pos = to_screen_pos(X_LEFT_BOUNDARY, Y_BOTTOM_BOUNDARY);
+        let top_right_screen_pos = to_screen_pos(X_RIGHT_BOUNDARY, Y_TOP_BOUNDARY);
+        let top_left_screen_pos = to_screen_pos(X_LEFT_BOUNDARY, Y_TOP_BOUNDARY);
+        
+        draw_line(bottom_right_screen_pos.0,  bottom_right_screen_pos.1, top_right_screen_pos.0, top_right_screen_pos.1, 1.0, RED);
+        draw_line(bottom_left_screen_pos.0,  bottom_left_screen_pos.1, top_left_screen_pos.0, top_left_screen_pos.1, 1.0, RED);
+        draw_line(bottom_left_screen_pos.0,  bottom_left_screen_pos.1, bottom_right_screen_pos.0,  bottom_right_screen_pos.1, 1.0, RED);
+
+        draw_circle_lines(mouse_position().0, mouse_position().1, SMOOTHING_RADIUS * WORLD_TO_SCREEN_CONVERSION_RATIO, 2.0, PURPLE);
         next_frame().await
     };
 }
 
 fn to_screen_pos(x: f32, y: f32) -> (f32, f32) {
-    return (x, screen_height()-y)
+    return (SCREEN_START_X + (x * WORLD_TO_SCREEN_CONVERSION_RATIO), screen_height()-((y * WORLD_TO_SCREEN_CONVERSION_RATIO) + SCREEN_START_Y))
 }
 fn smoothing_kernel(distance: f32, radius: f32) -> f32 {
     if distance >= radius { return 0.0; }
