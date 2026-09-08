@@ -21,8 +21,6 @@ async fn main() {
         clear_background(BLACK);
 
 
-        let mut total_density:f32 = 0.0;
-
         for particle in &fluid_struct.particles{
             let mut color: Color = Color {r: 1.0, g: 0.0, b:0.0, a:1.0};
             if particle.density > TARGET_DENSITY * 1.001 {
@@ -31,14 +29,10 @@ async fn main() {
                 color = Color {r: 0.0, g: 0.0, b:1.0, a:3.0};
             } else {
                 color = Color {r: 1.0, g: 1.0, b:1.0, a:3.0};
-            } 
+            }
             
             let particle_screen_pos = to_screen_pos(particle.position.x, particle.position.y);
             draw_circle(particle_screen_pos.0, particle_screen_pos.1, PARTICLE_SIZE, color);
-
-            if particle.position.distance(Vec2::new(mouse_position().0, screen_height() - mouse_position().1)) < SMOOTHING_RADIUS {
-                total_density += particle.density;
-            }
 
             if ((particle.force.x.powi(2) + particle.force.y.powi(2)).powf(0.5) == 0.0) {
                 //avoid dividing by zero 
