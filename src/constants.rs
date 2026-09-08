@@ -2,14 +2,14 @@ pub const PARTICLES_START_POS_X: f32 = 200.0;
 pub const PARTICLES_START_POS_Y: f32 = 200.0;
 
 pub const PARTICLE_SIZE:f32 = 4.0;
-pub const PARTICLE_COUNT:u32 = 800;
+pub const PARTICLE_COUNT:u32 = 1000;
 
 pub const GRAVITY: f32 = -9.8;
 
 pub const DAMPENING:f32 = 0.3;
 pub const SMOOTHING_RADIUS: f32 = 5.0;
-pub const TARGET_DENSITY: f32 = 0.7;
-pub const PRESSURE_MULTIPLYER: f32 = 150.0;
+pub const TARGET_DENSITY: f32 = 0.5;
+pub const PRESSURE_MULTIPLYER: f32 = 300.0;
 
 
 pub const SCREEN_START_X:f32 = 200.0; // given in pixels
