@@ -209,6 +209,8 @@ impl SysStruct {
 
         for i in 0..self.particles.len() {
             let mut pressure_force :Vec2 = Vec2::ZERO;
+            let mut viscosity_force: Vec2 = Vec2::ZERO;
+
             //loop through only neighbouring cells with the same cell key
             let cell_pos = get_cell_pos(self.particles[i].position);
             for x_dif in -1..=1 {
@@ -232,10 +234,15 @@ impl SysStruct {
                         let gradient = smoothing_kernel_derivative(dist, SMOOTHING_RADIUS);
 
                         pressure_force -= gradient* pressure_direction * shared_pressure / other_particle.density;
+
+                        let velocity_dif = self.particles[i].velocity - other_particle.velocity;
+                        let viscosity_weight = smoothing_kernel(dist, SMOOTHING_RADIUS);
+
+                        viscosity_force = velocity_dif * viscosity_weight * VISCOSITY / other_particle.density;
                     }
                 }
             }
-            self.particles[i].force = pressure_force;
+            self.particles[i].force = pressure_force - viscosity_force;
         }
 
         //update veloctiy and position
