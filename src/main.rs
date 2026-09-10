@@ -14,11 +14,23 @@ async fn main() {
     let mut fluid_struct: SysStruct = SysStruct::new(PARTICLE_COUNT);
 
     loop {
+        clear_background(BLACK);
+        
+        //reset forces from previous frame
+        fluid_struct.clear_forces();
+
+        //apply mouse effects
+        let mouse_world_pos = to_world_pos(mouse_position().0, mouse_position().1);
+        if is_mouse_button_down(MouseButton::Left) {
+            fluid_struct.apply_pull(Vec2::new(mouse_world_pos.0, mouse_world_pos.1));
+            draw_circle_lines(mouse_position().0, mouse_position().1, MOUSE_EFFECT_RADIUS * WORLD_TO_SCREEN_CONVERSION_RATIO, 2.0, PURPLE);
+        }
+
+
         //update physics
         let delta_time = get_frame_time();
         fluid_struct.update_physics(delta_time);
-        
-        clear_background(BLACK);
+
 
 
         for particle in &fluid_struct.particles{
@@ -57,9 +69,7 @@ async fn main() {
         draw_line(bottom_left_screen_pos.0,  bottom_left_screen_pos.1, top_left_screen_pos.0, top_left_screen_pos.1, 1.0, RED);
         draw_line(bottom_left_screen_pos.0,  bottom_left_screen_pos.1, bottom_right_screen_pos.0,  bottom_right_screen_pos.1, 1.0, RED);
 
-        draw_circle_lines(mouse_position().0, mouse_position().1, SMOOTHING_RADIUS * WORLD_TO_SCREEN_CONVERSION_RATIO, 2.0, PURPLE);
 
-        let mouse_world_pos = to_world_pos(mouse_position().0, mouse_position().1);
         next_frame().await
     };
 }
@@ -177,6 +187,26 @@ impl SysStruct {
             }
         }
     }
+    pub fn clear_forces(&mut self) {
+        for i in 0..self.particles.len() {
+            let particle: &mut Particle = &mut self.particles[i];
+            particle.force = Vec2::ZERO;
+        }
+    }
+    pub fn apply_pull(&mut self, position: Vec2) {
+        for i in 0..self.particles.len() {
+            let particle: &mut Particle = &mut self.particles[i];
+            let dist = position.distance(particle.position);
+
+            if dist > MOUSE_EFFECT_RADIUS {
+                continue;
+            }
+            let dir = (position - particle.position).normalize();
+            let force = dir * MOSUE_PULL_STRENGTH;
+
+            particle.force += force;
+        }
+    }
     pub fn update_physics(&mut self, delta_time: f32) {
         self.update_cell_particles();
 
@@ -242,7 +272,7 @@ impl SysStruct {
                     }
                 }
             }
-            self.particles[i].force = pressure_force - viscosity_force;
+            self.particles[i].force += pressure_force - viscosity_force;
         }
 
         //update veloctiy and position
