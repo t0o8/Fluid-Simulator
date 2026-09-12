@@ -90,7 +90,6 @@ fn smoothing_kernel_derivative(r: f32, h: f32) -> f32 {
     let scale = 30.0 / (PI as f32 * h.powi(5));
     -scale * (h - r).powi(2)
 }
-
 #[derive(Copy, Clone)]
 pub struct Particle {
     velocity: Vec2,
@@ -207,9 +206,7 @@ impl SysStruct {
             particle.force += force;
         }
     }
-    pub fn update_physics(&mut self, delta_time: f32) {
-        self.update_cell_particles();
-
+    pub fn update_densities(&mut self, delta_time: f32) {
         //update density and pressure
         for i in 0..self.particles.len() {
             let mut density: f32 = 0.0;
@@ -235,9 +232,11 @@ impl SysStruct {
             particle.density = density.max(0.0001);
             particle.pressure = (particle.density - TARGET_DENSITY) * PRESSURE_MULTIPLYER;
         }
-        //update forces
+    }
+    pub fn update_force_with_prediction(&mut self, delta_time: f32) {
+        for i in 0..self.particles.len(){
+            let predicted_pos: Vec2 = self.particles[i].position + self.particles[i].velocity * delta_time;
 
-        for i in 0..self.particles.len() {
             let mut pressure_force :Vec2 = Vec2::ZERO;
             let mut viscosity_force: Vec2 = Vec2::ZERO;
 
@@ -252,13 +251,14 @@ impl SysStruct {
                             break;
                         }
                         let other_particle = self.particles[self.particle_indexes[j]];
+                        let other_particle_predicted_pos = other_particle.position + other_particle.velocity * delta_time;
 
-                        //update density
-                        let dist = self.particles[i].position.distance(other_particle.position);
+                        //update forces
+                        let dist = predicted_pos.distance(other_particle_predicted_pos);
                         if dist > SMOOTHING_RADIUS || dist == 0.0 {
                             continue;
                         }
-                        let pressure_direction = (self.particles[i].position - other_particle.position) / dist;
+                        let pressure_direction = (predicted_pos - other_particle_predicted_pos) / dist;
 
                         let shared_pressure = (self.particles[i].pressure + other_particle.pressure) / 2.0;
                         let gradient = smoothing_kernel_derivative(dist, SMOOTHING_RADIUS);
@@ -268,12 +268,24 @@ impl SysStruct {
                         let velocity_dif = self.particles[i].velocity - other_particle.velocity;
                         let viscosity_weight = smoothing_kernel(dist, SMOOTHING_RADIUS);
 
-                        viscosity_force = velocity_dif * viscosity_weight * VISCOSITY / other_particle.density;
+                        viscosity_force += velocity_dif * viscosity_weight * VISCOSITY / other_particle.density;
                     }
                 }
             }
             self.particles[i].force += pressure_force - viscosity_force;
         }
+    }
+    pub fn update_position(&mut self, delta_time: f32) {
+        for i in 0..self.particles.len() {
+            let mut particle: &mut Particle = &mut self.particles[i];
+            particle.position += delta_time * particle.velocity;
+        }
+    }
+    pub fn update_physics(&mut self, delta_time: f32) {
+        self.update_cell_particles();
+        self.update_densities(delta_time);
+        self.update_force_with_prediction(delta_time);
+        //update forces
 
         //update veloctiy and position
         for particle in &mut self.particles {
