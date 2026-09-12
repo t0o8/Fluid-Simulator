@@ -69,6 +69,9 @@ async fn main() {
         draw_line(bottom_left_screen_pos.0,  bottom_left_screen_pos.1, top_left_screen_pos.0, top_left_screen_pos.1, 1.0, RED);
         draw_line(bottom_left_screen_pos.0,  bottom_left_screen_pos.1, bottom_right_screen_pos.0,  bottom_right_screen_pos.1, 1.0, RED);
 
+        //write fps
+        let fps = 1.0/delta_time;
+        draw_text(fps.to_string(), 10.0, 20.0, 30.0, DARKGRAY);
 
         next_frame().await
     };
