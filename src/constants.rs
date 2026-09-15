@@ -2,13 +2,13 @@ pub const PARTICLES_START_POS_X: f32 = 200.0;
 pub const PARTICLES_START_POS_Y: f32 = 200.0;
 
 pub const PARTICLE_SIZE:f32 = 4.0;
-pub const PARTICLE_COUNT:u32 = 1250;
+pub const PARTICLE_COUNT:u32 = 5000;
 
 pub const GRAVITY: f32 = -19.8;
 
 pub const DAMPENING:f32 = 0.2;
 pub const SMOOTHING_RADIUS: f32 = 2.0;
-pub const TARGET_DENSITY: f32 = 1.0;
+pub const TARGET_DENSITY: f32 = 1.5;
 pub const PRESSURE_MULTIPLYER: f32 = 3000.0;
 pub const VISCOSITY: f32 = 15.0;
 
