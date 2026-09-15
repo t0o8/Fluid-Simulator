@@ -4,11 +4,10 @@ A real-time 2D fluid simulation built in Rust using the [Macroquad](https://macr
 
 ## Features
 
-*   **Smoothed Particle Hydrodynamics (SPH):** Accurately models fluid mechanics using density, pressure, and viscosity calculations.
+*   **Smoothed Particle Hydrodynamics (SPH):** Models fluid mechanics using density, pressure, and viscosity calculations.
 *   **Predictive Physics:** Calculates predictive forces for stable fluid compression and movement.
 *   **Interactive Environments:** 
     *   Boundary collision with velocity dampening.
-    *   **Mouse Interaction:** Click and hold the Left Mouse Button to act as a gravity well, pulling particles toward your cursor.
 *   **Dynamic Visuals:** Particles dynamically change color based on their current density (Blue = Low Density, White = Target Density, Red = High Density).
 
 ##  Controls
