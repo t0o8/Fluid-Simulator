@@ -14,6 +14,6 @@ A real-time 2D fluid simulation built in Rust using the [Macroquad](https://macr
 
 *   **Left Mouse Click (Hold):** Attracts nearby fluid particles towards the mouse cursor.
 
-*   ## Built With
+## Built With
 * [Rust](https://www.rust-lang.org/) - The programming language
 * [Macroquad](https://macroquad.rs/) - A Rust 2D game library
